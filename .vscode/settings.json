@@ -1,0 +1,14 @@
+{
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": true,
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint":true 
+    },
+    "files.associations": {
+        "*.js": "javascriptreact"    
+        },
+        "eslint.format.enable": true,
+
+}
