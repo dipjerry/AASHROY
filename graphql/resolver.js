@@ -3,6 +3,7 @@ const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Post = require('../models/persons_list');
+const Ngo = require('../models/ngo_list');
 const fileHelper = require('../util/file');
 
 module.exports = {
@@ -104,6 +105,51 @@ module.exports = {
     };
   },
 
+  createNgo: async function({ngoInput}, req) {
+    // if (!req.isAuth) {
+    //   const error = new Error('Not Authenticated');
+    //   error.code = 401;
+    //   throw error;
+    // }
+    const errors = [];
+    if (validator.isEmpty(ngoInput.name)||
+    !validator.isLength(ngoInput.name, {min: 5})) {
+      errors.push({message: 'Name is invalid.'});
+    }
+    if (validator.isEmpty(ngoInput.works)||
+    !validator.isLength(ngoInput.works, {min: 10})) {
+      errors.push({message: 'works is invalid.'});
+    }
+    if (errors.isLength>0) {
+      const error = new Error('Invalid Input');
+      error.data = errors;
+      error.code = 422;
+      throw error;
+    }
+    // const user = await User.findById(req.userId);
+    // if (!user) {
+    //   const error = new Error('Invalid User');
+    //   error.code = 401;
+    //   throw error;
+    // }
+    const ngo = new Ngo({
+      name: ngoInput.name,
+      works: ngoInput.works,
+      // place: ngoInput.imageUrl.replace(/\\/g, '/'),
+      place: ngoInput.place,
+      // creator: user,
+    });
+
+    const createdNgo = await ngo.save();
+    // user.posts.push(createdPost);
+    // await user.save();
+    return {...createdNgo._doc,
+      _id: createdNgo._id.toString(),
+      createdAt: createdNgo.createdAt.toISOString(),
+      updatedAt: createdNgo.updatedAt.toISOString(),
+    };
+  },
+
   posts: async function({page}, req) {
     // if (!req.isAuth) {
     //   const error = new Error('Not Authenticated');
@@ -134,13 +180,14 @@ module.exports = {
   },
 
   post: async function({postId}, req) {
-    if (!req.isAuth) {
-      const error = new Error('Not Authenticated');
-      error.code = 401;
-      throw error;
-    }
+    // if (!req.isAuth) {
+    //   const error = new Error('Not Authenticated');
+    //   error.code = 401;
+    //   throw error;
+    // }
 
-    const post = await Post.findById(postId).populate('creator');
+    // const post = await Post.findById(postId).populate('creator');
+    const post = await Post.findById(postId).populate();
     if (!post) {
       const error = new Error('No post found');
       error.code = 404;

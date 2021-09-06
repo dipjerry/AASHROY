@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const homelessSchema = new Schema({
-  title: {
+const ngoSchema = new Schema({
+  name: {
     type: String,
     required: true,
   },
-  imageUrl: {
+  works: {
     type: String,
     required: true,
   },
-  cordinate: {
+  place: {
     type: String,
     required: true,
   },
@@ -19,4 +19,4 @@ const homelessSchema = new Schema({
   timestamps: true,
 });
 
-module.exports = mongoose.model('Peoples', homelessSchema);
+module.exports = mongoose.model('NGO', ngoSchema);

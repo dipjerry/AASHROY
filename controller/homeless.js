@@ -1,5 +1,5 @@
 const {validationResult} = require('express-validator/check');
-const Post = require('../models/post');
+const Peoples = require('../models/persons_list');
 const User = require('../models/user');
 const fileHelper = require('../util/file');
 
@@ -8,8 +8,8 @@ exports.getPosts = async (req, res, next) => {
   const currentPage = +req.query.page || 1;
   const perPage = 2;
   try {
-    const totalItems = await Post.find().countDocuments();
-    const posts = await Post.find().populate('creator')
+    const totalItems = await Peoples.find().countDocuments();
+    const posts = await Peoples.find().populate('creator')
         .skip((currentPage-1)*perPage)
         .limit(perPage);
     res.status(200).json({
@@ -27,7 +27,7 @@ exports.getPosts = async (req, res, next) => {
 
 exports.getPost = (req, res, next) => {
   const postId = req.params.postId;
-  Post.findById(postId)
+  Peoples.findById(postId)
       .then((post)=>{
         if (!post) {
           const error = new Error('Could not find post');
@@ -36,7 +36,7 @@ exports.getPost = (req, res, next) => {
         }
         res.status(200).json({
           post: post,
-          message: 'Post fetched Success!!',
+          message: 'Peoples fetched Success!!',
         });
       })
       .catch((err)=>{
@@ -65,7 +65,7 @@ exports.postPosts = (req, res, next) => {
   const title = req.body.title;
   const cordinate = req.body.cordinate;
   //   let creator;
-  const post = new Post({
+  const post = new Peoples({
     title: title,
     cordinate: cordinate,
     imageUrl: imageUrl,
@@ -80,6 +80,7 @@ exports.postPosts = (req, res, next) => {
   //     user.posts.push(post);
   //     return user.save();
   //   })
+
       .then((result)=>{
         res.status(201).json({
           message: 'post created succesfull!!!!',
@@ -114,7 +115,8 @@ exports.updatePost=(req, res, next)=>{
   //   error.statusCode = 422;
   //   throw error;
   // }
-  Post.findById(postId)
+
+  Peoples.findById(postId)
       .then((post)=>{
         if (!post) {
           const error = new Error('Could not Find the post to update');
@@ -150,10 +152,10 @@ exports.updatePost=(req, res, next)=>{
 
 exports.deletePost = (req, res, next) => {
   const postId = req.params.postId;
-  Post.findById(postId)
+  Peoples.findById(postId)
       .then((post) => {
         if (!post) {
-          const error = new Error('Post not found');
+          const error = new Error('Peoples not found');
           error.statusCode = 404;
           throw error;
         }
@@ -163,7 +165,7 @@ exports.deletePost = (req, res, next) => {
           throw error;
         }
         fileHelper.clearFile(post.imageUrl);
-        return Post.findByIdAndRemove(postId);
+        return Peoples.findByIdAndRemove(postId);
       })
       .then((findPosts) => {
         return User.findby(postId);
