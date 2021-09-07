@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Post = require('../models/persons_list');
 const Ngo = require('../models/ngo_list');
+const Donation = require('../models/donation');
 const fileHelper = require('../util/file');
 
 module.exports = {
@@ -61,19 +62,19 @@ module.exports = {
     return {token: token, userId: user._id.toString()};
   },
 
-  createPost: async function({postInput}, req) {
+  createPeoples: async function({peopleInput}, req) {
     // if (!req.isAuth) {
     //   const error = new Error('Not Authenticated');
     //   error.code = 401;
     //   throw error;
     // }
     const errors = [];
-    if (validator.isEmpty(postInput.title)||
-    !validator.isLength(postInput.title, {min: 5})) {
+    if (validator.isEmpty(peopleInput.title)||
+    !validator.isLength(peopleInput.title, {min: 5})) {
       errors.push({message: 'Title is invalid.'});
     }
-    if (validator.isEmpty(postInput.cordinate)||
-    !validator.isLength(postInput.cordinate, {min: 10})) {
+    if (validator.isEmpty(peopleInput.cordinate)||
+    !validator.isLength(peopleInput.cordinate, {min: 10})) {
       errors.push({message: 'cordinate is invalid.'});
     }
     if (errors.isLength>0) {
@@ -89,9 +90,9 @@ module.exports = {
     //   throw error;
     // }
     const post = new Post({
-      title: postInput.title,
-      cordinate: postInput.cordinate,
-      imageUrl: postInput.imageUrl.replace(/\\/g, '/'),
+      title: peopleInput.title,
+      cordinate: peopleInput.cordinate,
+      imageUrl: peopleInput.imageUrl.replace(/\\/g, '/'),
       // creator: user,
     });
 
@@ -150,7 +151,52 @@ module.exports = {
     };
   },
 
-  posts: async function({page}, req) {
+  createDonation: async function({donationInput}, req) {
+    // if (!req.isAuth) {
+    //   const error = new Error('Not Authenticated');
+    //   error.code = 401;
+    //   throw error;
+    // }
+    const errors = [];
+    if (validator.isEmpty(donationInput.item)||
+    !validator.isLength(donationInput.item, {min: 5})) {
+      errors.push({message: 'item is invalid.'});
+    }
+    // if (validator.isEmpty(donationInput.works)||
+    // !validator.isLength(donationInput.works, {min: 10})) {
+    //   errors.push({message: 'works is invalid.'});
+    // }
+    if (errors.isLength>0) {
+      const error = new Error('Invalid Input');
+      error.data = errors;
+      error.code = 422;
+      throw error;
+    }
+    // const user = await User.findById(req.userId);
+    // if (!user) {
+    //   const error = new Error('Invalid User');
+    //   error.code = 401;
+    //   throw error;
+    // }
+    const donation = new Donation({
+      item: donationInput.item,
+      // works: donationInput.works,
+      // place: ngoInput.imageUrl.replace(/\\/g, '/'),
+      // place: donationInput.place,
+      // creator: user,
+    });
+
+    const createdDonation = await donation.save();
+    // user.posts.push(createdPost);
+    // await user.save();
+    return {...createdDonation._doc,
+      _id: createdDonation._id.toString(),
+      createdAt: createdDonation.createdAt.toISOString(),
+      updatedAt: createdDonation.updatedAt.toISOString(),
+    };
+  },
+
+  peoples: async function({page}, req) {
     // if (!req.isAuth) {
     //   const error = new Error('Not Authenticated');
     //   error.code = 401;
@@ -179,6 +225,67 @@ module.exports = {
     };
   },
 
+  ngo: async function(req) {
+    // if (!req.isAuth) {
+    //   const error = new Error('Not Authenticated');
+    //   error.code = 401;
+    //   throw error;
+    // }
+    // if (!page) {
+    //   page = 1;
+    // }
+    // const perPage = 2;
+    console.log('ok');
+    const totalNgo = await Ngo.find().countDocuments();
+    const ngos = await Ngo.find().populate();
+    // const posts = await Post.find().populate('creator')
+    // .sort({createdAt: -1})
+    // .skip((page-1)*perPage)
+    // .limit(perPage);
+    console.log(ngos);
+    return {
+      ngos: ngos.map((p) => {
+        return {
+          ...p._doc,
+          _id: p._id.toString(),
+          createdAt: p.createdAt.toISOString(),
+          updatedAt: p.updatedAt.toISOString(),
+        };
+      }),
+      totalNgo: totalNgo,
+    };
+  },
+
+  donations: async function( req) {
+    // if (!req.isAuth) {
+    //   const error = new Error('Not Authenticated');
+    //   error.code = 401;
+    //   throw error;
+    // }
+    // if (!page) {
+    //   page = 1;
+    // }
+    // const perPage = 2;
+    const totalDonations = await Donation.find().countDocuments();
+    const donations = await Donation.find().populate();
+    // const posts = await Post.find().populate('creator')
+    // .sort({createdAt: -1});
+    // .skip((page-1)*perPage)
+    // .limit(perPage);
+    console.log(donations);
+    return {
+      donations: donations.map((p) => {
+        return {
+          ...p._doc,
+          _id: p._id.toString(),
+          createdAt: p.createdAt.toISOString(),
+          updatedAt: p.updatedAt.toISOString(),
+        };
+      }),
+      totalDonations: totalDonations,
+    };
+  },
+
   post: async function({postId}, req) {
     // if (!req.isAuth) {
     //   const error = new Error('Not Authenticated');
@@ -201,7 +308,7 @@ module.exports = {
     };
   },
 
-  updatePost: async function({postId, postInput}, req) {
+  updatePost: async function({postId, peopleInput}, req) {
     // check authentication
     if (!req.isAuth) {
       const error = new Error('Not Authenticated');
@@ -210,12 +317,12 @@ module.exports = {
     }
     // check validation
     const errors = [];
-    if (validator.isEmpty(postInput.title)||
-    !validator.isLength(postInput.title, {min: 5})) {
+    if (validator.isEmpty(peopleInput.title)||
+    !validator.isLength(peopleInput.title, {min: 5})) {
       errors.push({message: 'Title is invalid.'});
     }
-    if (validator.isEmpty(postInput.content)||
-    !validator.isLength(postInput.content, {min: 10})) {
+    if (validator.isEmpty(peopleInput.content)||
+    !validator.isLength(peopleInput.content, {min: 10})) {
       errors.push({message: 'Content is invalid.'});
     }
     if (errors.isLength>0) {
@@ -236,11 +343,11 @@ module.exports = {
       error.statusCode = 403;
       throw error;
     }
-    if (typeof postInput.imageUrl!=='undefined') {
-      post.imageUrl = postInput.imageUrl;
+    if (typeof peopleInput.imageUrl!=='undefined') {
+      post.imageUrl = peopleInput.imageUrl;
     }
-    post.title = postInput.title;
-    post.content = postInput.content;
+    post.title = peopleInput.title;
+    post.content = peopleInput.content;
     const updatedPost = await post.save();
     return {
       ...updatedPost._doc,
@@ -277,6 +384,7 @@ module.exports = {
     console.log('post destoyed');
     return true;
   },
+
   user: async function(args, req) {
     if (!req.isAuth) {
       const error = new Error('Not Authenticated');

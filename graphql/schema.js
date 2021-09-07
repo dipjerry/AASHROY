@@ -1,7 +1,7 @@
 const {buildSchema} = require('graphql');
 module.exports = buildSchema(
     `
-    type Post {
+    type Peoples {
         _id: ID!
         title: String!
         cordinate: String!
@@ -16,32 +16,48 @@ module.exports = buildSchema(
         email: String!
         password: String
         status: String!
-        posts: [Post!]!
     }
+    type Donation {
+        _id: ID!
+        item: String!
+      }
 
+      
+    type NGO{
+        _id: ID!
+        name: String!
+        works: String!
+        place: String!
+    }
     type AuthData {
         token: String!
         userId: String!
     }
     
-    type postData{
-        posts:[Post!]!
+    type peopleData{
+        posts:[Peoples!]!
         totalPosts: Int!
     }
 
-    type ngoData {
-        _id: ID!,
-        name: String!
-        workd: String!
-        place: String!,
-        createdAt: String!
-        updatedAt: String!
+
+    type ngoData{
+        ngos:[NGO!]!
+        totalNgo: Int!
+        
     }
+    type donationData {
+        donations:[Donation!]!
+        totalDonations: Int!
+            }
 
     input NgoInputData {
         name: String!
         works: String!
         place: String!
+    }
+
+    input DonationInputData {
+        item: String!
     }
 
     input UserInputData {
@@ -50,7 +66,7 @@ module.exports = buildSchema(
         password: String!
     }
 
-    input PostInputData {
+    input PeopleInputData {
         title: String!
         cordinate: String!
         imageUrl: String
@@ -58,19 +74,21 @@ module.exports = buildSchema(
 
     type RootQuery {
         login(email: String!, password: String!): AuthData!
-        posts(page : Int!): postData!
-        post(postId:ID!): Post!
-        user : User!
-        ngo : ngoData!
+        peoples(page : Int!): peopleData!
+        people(postId: ID!): Peoples!
+        user: User!
+        ngo: ngoData!
+        donations : donationData!
     }
 
     type RootMutation {
         createUser(userInput: UserInputData): User!
-        createPost(postInput: PostInputData): Post!
-        createNgo(ngoInput: NgoInputData) : ngoData!  
-        updatePost(postId: ID!, postInput: PostInputData): Post!
+        createPeoples(peopleInput: PeopleInputData): Peoples!
+        createNgo(ngoInput: NgoInputData): NGO!  
+        createDonation(donationInput: DonationInputData) : Donation!  
+        updatePost(postId: ID!, postInput: PeopleInputData): Peoples!
         deletePost(postId: ID!): Boolean
-        updateStatus(status : String) : User!
+        updateStatus(status: String) : User!
     }
 
     schema {
